@@ -131,7 +131,7 @@ public class GameSCR implements Screen {
     @Override
     public void render(float delta) {
         spawnEnemy();
-        spawnWeapon();
+       // spawnWeapon();
         viewport.getCamera().position.set(cameraMovement.x + 8, cameraMovement.y + 8, 0);
         viewport.getCamera().update();
 
@@ -198,13 +198,13 @@ public class GameSCR implements Screen {
                         enemies.get(e).unmove(hero);
                     }
                         for (int w = 0; w < weapons.size(); w++) {
-                        if (viewport.getCamera().frustum.boundsInFrustum(weapons.get(w).x, weapons.get(w).y, 0,8,8,0)) {
-                            batch.draw(weaponTexture,weapons.get(w).x,weapons.get(w).y,16,16);
+                      //  if (viewport.getCamera().frustum.boundsInFrustum(weapons.get(w).x, weapons.get(w).y, 0,8,8,0)) {
+                           // batch.draw(weaponTexture,weapons.get(w).x,weapons.get(w).y,16,16);
 //                                    if (weapons.get(w).isHitEnemies(enemies.get(e)) && viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x, enemies.get(e).y, 0, 8, 8, 0)) {
 //                                        enemies.remove(e);
 //                                    }
 
-                                }
+                        //        }
                             }
                 }
 
