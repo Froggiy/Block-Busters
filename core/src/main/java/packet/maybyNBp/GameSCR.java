@@ -227,7 +227,7 @@ public class GameSCR implements Screen {
 
             //cameraMovement.xBtn.font.draw(batch, cameraMovement.xBtn.text, Gdx.graphics.getWidth()-100, Gdx.graphics.getHeight()-40);
             batch.draw(new Texture("2b.png"), screenHealthX, screenHealthY-100, healthBarWidth*5, healthBarHeight*5);
-            cameraMovement.healthText.font.draw(batch,Integer.toString(weapons.size()), screenHealthX + 10, screenHealthY + 15);
+            cameraMovement.healthText.font.draw(batch,cameraMovement.healthText.text, screenHealthX + 10, screenHealthY + 15);
             cameraMovement.timerBtn.font.draw(batch, cameraMovement.timer(false), 50, Gdx.graphics.getHeight() - 200);
             batch.draw(joystick.backgroundTexture, joystick.Srcx()-100, joystick.Srcy()-100, joystick.radius, joystick.radius);
             joystick.update(delta);
