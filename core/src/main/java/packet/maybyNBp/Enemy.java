@@ -3,9 +3,10 @@ package packet.maybyNBp;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public class Enemy {
+public class Enemy implements Pool.Poolable {
     long timeSinceDamage, intervalDamage = 800;
     float x,y,vx,vy;
 
@@ -54,5 +55,16 @@ public class Enemy {
     public void approach(Hero h){
         vx = h.x-x;
         vy = h.y-y;
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    public void init(float x, float y) {
+        this.x = x;
+        this.y = y;
+        hitBox.set(x, y, 16, 16);
     }
 }

@@ -8,6 +8,7 @@ public class Heart extends Item{
     Boolean isUsed = false;
     float x,y;
     public Heart(float x, float y){
+        super(x,y);
         this.x = x;
         this.y = y;
         hitbox = new Rectangle((int)x,(int)y,16,16);

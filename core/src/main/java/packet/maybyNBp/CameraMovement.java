@@ -15,7 +15,8 @@ public class CameraMovement extends Enemy{
     Button timerBtn;
     long timeSinceStart, gametime;
     public CameraMovement(float x, float y, BitmapFont font) {
-        super(x, y);
+        super(x,y);
+
         healthLine = new Rectangle(x,y,15,health);
         gameOverBtn = new Button(x,y,font,"Game Over!");
         endTime = new Button(x,y,font,timer(false));

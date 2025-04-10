@@ -18,6 +18,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -42,9 +43,20 @@ public class GameSCR implements Screen {
     CameraMovement cameraMovement;
     FitViewport viewport;
     List<Enemy> enemies = new ArrayList<Enemy>();
+    private Pool<Enemy> enemyPool = new Pool<Enemy>() {
+        @Override
+        protected Enemy newObject() {
+            float ex = hero.x+MathUtils.random(-1000f,1000f);
+            float ey = hero.y+MathUtils.random(-1000f,1000f);
+            return new Enemy(ex,ey);
+        }
+    };;
     List<Heart> hearts = new ArrayList<Heart>();
+   List<Weapon> weapons = new ArrayList<Weapon>();
     long timeSinceSpawn, intervalSpawn = 1000;
     long timeSinceHeal, intervalHeal =10500;
+    long timeSinceTake, intervalTake =300;
+    long timeSinceWeapon, intervalWeapon =5500;
     private static final int TILE_SIZE = 16;  // Size of each tile in pixels
     private static final int WIDTH = 200;
     private static final int HEIGHT = 150;
@@ -54,13 +66,15 @@ public class GameSCR implements Screen {
     private BitmapFont uiFont;
     OrthographicCamera uiCamera;
     long finalTime = 0;
-
-
+    Texture heartTexture;
+    Texture weaponTexture;
 
     public GameSCR(Main m) {
         main = m;
         hero= new Hero(500,500);
         timeSinceSpawn =TimeUtils.millis();
+        timeSinceTake = TimeUtils.millis();
+        timeSinceWeapon = TimeUtils.millis();
         this.tittleFont = m.tittleFont;
         this.uiFont = m.uiFont;
         touch2 = new Vector3();
@@ -71,6 +85,7 @@ public class GameSCR implements Screen {
         map = new TmxMapLoader().load("levels/level.tmx");
         tiledMap = new TiledMap();
         MapLayers layers = tiledMap.getLayers();
+        heartTexture = new Texture("heart-Photoroom.png");
         grassTexture = new TextureRegion(new Texture("5b.png"));
         grassTexture1 = new TextureRegion(new Texture("5h.png"));
         waterTexture = new TextureRegion(new Texture("6b.png"));
@@ -116,8 +131,7 @@ public class GameSCR implements Screen {
     @Override
     public void render(float delta) {
         spawnEnemy();
-
-        // Update game world camera
+        spawnWeapon();
         viewport.getCamera().position.set(cameraMovement.x + 8, cameraMovement.y + 8, 0);
         viewport.getCamera().update();
 
@@ -135,8 +149,6 @@ public class GameSCR implements Screen {
         }
 
         cameraMovement.approach(hero);
-
-        // Clear screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         ScreenUtils.clear(0, 0.5f, 0.3f, 0);
 
@@ -148,60 +160,74 @@ public class GameSCR implements Screen {
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
+
         if (cameraMovement.health > 0) {
             hero.move();
             batch.draw(hero.texture, hero.hitBox.x, hero.hitBox.y, 16, 16);
         }
-        if(cameraMovement.health < 80 && cameraMovement.health > 0 ){
+        if(cameraMovement.health < 80 && cameraMovement.health > 0 )
             spawnHeart();
         for (int h = 0; h < hearts.size(); h++){
-            batch.draw(new Texture("heart-Photoroom.png"), hearts.get(h).x,hearts.get(h).y,16,16);
-            if (hero.isHit(hearts.get(h).hitbox) && !hearts.get(h).isUsed){
-                cameraMovement.health+=5;
-                cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
-                hearts.remove(h);
-            }
-        }
-            }
-
-        for (Enemy e : enemies) {
-            if (cameraMovement.health > 0) {
-                if (hero.isHit(e.hitBox)) {
-                    e.getDamage(cameraMovement);
-                    cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
+                if (viewport.getCamera().frustum.boundsInFrustum(hearts.get(h).x,hearts.get(h).y,0,8,8,0)) {
+                    batch.draw(heartTexture, hearts.get(h).x, hearts.get(h).y, 16, 16);
+                    if (TimeUtils.millis() >= timeSinceTake + intervalTake && hero.isHit(hearts.get(h).hitbox))
+                    {
+                        cameraMovement.health += 5;
+                        cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
+                        hearts.remove(h);
+                        timeSinceTake = TimeUtils.millis();
+                    }
                 }
-                e.move(hero);
-            } else {
-                e.unmove(hero);
+
+
             }
-            batch.draw(e.texture, e.hitBox.x, e.hitBox.y, 16, 16);
-        }
 
-        batch.end(); // End world rendering
 
-        // ---------------- FIX UI SHAKING & MAKE IT BIGGER ----------------
+
+                for (int e = 0; e < enemies.size(); e++) {
+                    if (cameraMovement.health > 0) {
+                        if( viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x, enemies.get(e).y, 0, 8, 8, 0)) {
+                            batch.draw(enemies.get(e).texture, enemies.get(e).hitBox.x, enemies.get(e).hitBox.y, 16, 16);
+                        }
+                        if (hero.isHit(enemies.get(e).hitBox)) {
+                            enemies.get(e).getDamage(cameraMovement);
+                            cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
+                        }
+                        enemies.get(e).move(hero);
+                    } else {
+                        enemies.get(e).unmove(hero);
+                    }
+                        for (int w = 0; w < weapons.size(); w++) {
+                        if (viewport.getCamera().frustum.boundsInFrustum(weapons.get(w).x, weapons.get(w).y, 0,8,8,0)) {
+                            batch.draw(weaponTexture,weapons.get(w).x,weapons.get(w).y,16,16);
+//                                    if (weapons.get(w).isHitEnemies(enemies.get(e)) && viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x, enemies.get(e).y, 0, 8, 8, 0)) {
+//                                        enemies.remove(e);
+//                                    }
+
+                                }
+                            }
+                }
+
+        batch.end();
         uiCamera.update();
         batch.setProjectionMatrix(uiCamera.combined);
         batch.begin();
 
         if (cameraMovement.health > 0) {
-            // Bigger UI elements
+
             float screenHealthX = 20; // Move slightly right
             float screenHealthY = Gdx.graphics.getHeight() - 40; // Move lower
 
-            // Increase health bar size
             float healthBarHeight = 20;
             float healthBarWidth = cameraMovement.health * 2; // Scale width
 
-            // Increase font size
             cameraMovement.xBtn.font.getData().setScale(2f);
             cameraMovement.healthText.font.getData().setScale(2f);
             cameraMovement.timerBtn.font.getData().setScale(2f);
 
-            // Draw UI elements
             //cameraMovement.xBtn.font.draw(batch, cameraMovement.xBtn.text, Gdx.graphics.getWidth()-100, Gdx.graphics.getHeight()-40);
             batch.draw(new Texture("2b.png"), screenHealthX, screenHealthY-100, healthBarWidth*5, healthBarHeight*5);
-            cameraMovement.healthText.font.draw(batch, cameraMovement.healthText.text, screenHealthX + 10, screenHealthY + 15);
+            cameraMovement.healthText.font.draw(batch,Integer.toString(weapons.size()), screenHealthX + 10, screenHealthY + 15);
             cameraMovement.timerBtn.font.draw(batch, cameraMovement.timer(false), 50, Gdx.graphics.getHeight() - 200);
             batch.draw(joystick.backgroundTexture, joystick.Srcx()-100, joystick.Srcy()-100, joystick.radius, joystick.radius);
             joystick.update(delta);
@@ -211,6 +237,7 @@ public class GameSCR implements Screen {
 
         batch.end(); // End UI rendering
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -236,25 +263,55 @@ public class GameSCR implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
+        heartTexture.dispose();
+        grassTexture.getTexture().dispose();
+        bushTexture.getTexture().dispose();
+        waterTexture.getTexture().dispose();
+        stoneTexture.getTexture().dispose();
         // Destroy screen's assets here.
     }
     void spawnEnemy(){
+        if (enemies.size() < 30){
         if (TimeUtils.millis() >= timeSinceSpawn + intervalSpawn){
             float ex = hero.x+MathUtils.random(-1000f,1000f);
             float ey = hero.y+MathUtils.random(-1000f,1000f);
-            enemies.add(new Enemy(ex,ey));
+            Enemy enemy = enemyPool.obtain();
+            enemy.init(ex, ey);  // Set position and update hitbox
+            enemies.add(enemy);
             timeSinceSpawn = TimeUtils.millis();
+        }
         }
     }
     void spawnHeart(){
         if (hearts.size() > 10) hearts.clear();
         if (TimeUtils.millis() >= timeSinceHeal + intervalHeal){
-            float ex = hero.x+MathUtils.random(-100f,100f);
-            float ey = hero.y+MathUtils.random(-100f,100f);
-            hearts.add(new Heart(ex,ey));
+            float hx = hero.x+MathUtils.random(-50f,50f);
+            float hy = hero.y+MathUtils.random(-50f,50f);
+            hearts.add(new Heart(hx,hy));
             timeSinceHeal = TimeUtils.millis();
         }
     }
+    private void spawnWeapon() {
+        if (enemies.size() > 5 && weapons.size() < 10){
+            if (TimeUtils.millis() >= timeSinceWeapon + intervalWeapon) {
+                float wx = hero.x + MathUtils.random(-500f, 500f);
+                float wy = hero.y + MathUtils.random(-500f, 500f);
+                weapons.add(new Weapon(wx, wy));
+                timeSinceWeapon = TimeUtils.millis();
+            }
+        }
+    }
+
+
+//    void spawnWeapon(){
+//        if (weapons.size() > 10) weapons.clear();
+//        if (TimeUtils.millis() >= timeSinceWeapon + intervalWeapon){
+//            float wx = hero.x+MathUtils.random(-100f,100f);
+//            float wy = hero.y+MathUtils.random(-100f,100f);
+//            weapons.add(new Weapon(wx,wy));
+//            timeSinceWeapon = TimeUtils.millis();
+//        }
+//    }
 
     void GameOver(){
         cameraMovement.gameOverBtn.font.draw(batch,cameraMovement.gameOverBtn.text,cameraMovement.x, cameraMovement.y);
@@ -327,23 +384,20 @@ public class GameSCR implements Screen {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                touch2.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                 uiCamera.unproject(touch);
-                if(cameraMovement.xBtn.hit(touch)){
+                if (cameraMovement.health <=0){
                     main.setScreen(main.menu);
+
                 }
+            if(touch2.x > cameraMovement.x +1600 && touch2.y > cameraMovement.y+400){
+                main.setScreen(main.menu);
+            }
             return false;
         }
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            touch2.set(screenX, screenY, 0);
-            uiCamera.unproject(touch2);
-            System.out.println(touch.x);
-            System.out.println(touch.y);
-            if(touch2.x > cameraMovement.x +1600 && touch2.y > cameraMovement.y+400){
-                main.setScreen(main.menu);
-            }
             hero.stop();
             return false;
         }
