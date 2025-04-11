@@ -4,6 +4,7 @@ package packet.maybyNBp;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.loaders.MusicLoader;
 import com.badlogic.gdx.audio.Music;
@@ -77,6 +78,7 @@ public class GameSCR implements Screen {
     Texture enemyTexture;
     Music music;
     int worldset;
+    int killedEnemies;
 
     public GameSCR(Main m) {
         main = m;
@@ -108,6 +110,7 @@ public class GameSCR implements Screen {
         viewport = m.viewport;
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
         touch = new Vector3();
+        int killedEnemies;
     }
 
     @Override
@@ -126,6 +129,7 @@ public class GameSCR implements Screen {
         enemyTexture = worldset == 1? new Texture("4b.png"):new Texture("3d.png");
         worldset = main.worldset;
         hero.weapon = "no";
+        killedEnemies = 0;
         MapLayers layers = tiledMap.getLayers();
         TiledMapTileLayer layer = new TiledMapTileLayer(WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE);
         perlinNoise = new PerlinNoise(new Random().nextInt());
@@ -243,6 +247,7 @@ public class GameSCR implements Screen {
                             } else {
                                 enemies.remove(e);
                                 hero.weapon = "no";
+                                killedEnemies++;
                                 break;
                             }
                         }
@@ -290,8 +295,8 @@ public class GameSCR implements Screen {
             batch.draw(joystick.backgroundTexture, joystick.Srcx()-100, joystick.Srcy()-100, joystick.radius, joystick.radius);
             joystick.update(delta);
         } else {
-            music.stop();
-            //GameOver();
+
+            GameOver();
         }
 
         batch.end(); // End UI rendering
@@ -362,20 +367,27 @@ public class GameSCR implements Screen {
     }
 
 
-//    void spawnWeapon(){
-//        if (weapons.size() > 10) weapons.clear();
-//        if (TimeUtils.millis() >= timeSinceWeapon + intervalWeapon){
-//            float wx = hero.x+MathUtils.random(-100f,100f);
-//            float wy = hero.y+MathUtils.random(-100f,100f);
-//            weapons.add(new Weapon(wx,wy));
-//            timeSinceWeapon = TimeUtils.millis();
-//        }
-//    }
-
     void GameOver(){
+        saveData();
         cameraMovement.gameOverBtn.font.draw(batch,cameraMovement.gameOverBtn.text,cameraMovement.x, cameraMovement.y);
         cameraMovement.endTime.font.draw(batch,cameraMovement.timer(true),cameraMovement.x, cameraMovement.y-200);
+        music.stop();
 
+    }
+    void saveData(){
+        Preferences preferences = Gdx.app.getPreferences("data");
+        try {
+            if(killedEnemies > preferences.getInteger("killed enemies")){
+             preferences.putInteger("killed enemies", killedEnemies);
+            }
+            if(cameraMovement.timer(true).equals(preferences.getString("Time"))){
+                preferences.putString("Time", cameraMovement.timer(true));
+            }
+        }catch (Exception e){
+            preferences.putInteger("killed enemies", killedEnemies);
+            preferences.putString("Time", cameraMovement.timer(true));
+        }
+        preferences.flush();
     }
     class PerlinNoise {
         private int[] permutation;
