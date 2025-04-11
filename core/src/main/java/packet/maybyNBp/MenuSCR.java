@@ -103,7 +103,7 @@ public class MenuSCR implements Screen {
             case"worldChose": {
                 plains.font.draw(batch, plains.text, plains.x, plains.y);
                 underground.font.draw(batch, underground.text, underground.x, underground.y);
-                plains.font.draw(batch,plains.text, plains.x, play.y);
+                start.font.draw(batch, start.text, start.x, start.y);
                 break;
             }
         }
