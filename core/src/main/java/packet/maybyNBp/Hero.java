@@ -13,6 +13,8 @@ public class Hero {
     Texture texture;
     float x,y,vx,vy;
     public Rectangle hitBox;
+    public String weapon;
+    public Texture weaponTexture;
 
 
     public Hero(float x, float y) {
@@ -22,6 +24,8 @@ public class Hero {
         vy = 0;
         texture = new Texture("1a.png");
         hitBox = new Rectangle(x,y,16,16);
+        weapon = "no";
+        weaponTexture = new Texture("sword.png");
     }
 
     public boolean isTileSolid(TiledMap map) {

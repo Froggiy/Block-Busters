@@ -14,10 +14,5 @@ public class Weapon extends Item{
         this.y = y;
         hitbox = new Rectangle(x-15,y-15,30,30);
     }
-    public boolean isHitEnemies(Enemy e){
-        if (hitbox.overlaps(e.hitBox)){
-            return true;
-        }
-        return false;
-    }
+
 }

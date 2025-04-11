@@ -30,6 +30,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 /** First screen of the application. Displayed after the application is created. */
@@ -73,6 +74,7 @@ public class GameSCR implements Screen {
     private BitmapFont uiFont;
     OrthographicCamera uiCamera;
     Texture heartTexture;
+    Texture enemyTexture;
     Music music;
     int worldset;
 
@@ -121,7 +123,9 @@ public class GameSCR implements Screen {
         cameraMovement.timeSinceStart =TimeUtils.millis();
         cameraMovement.health = cameraMovement.maxHealth;
         music.play();
+        enemyTexture = worldset == 1? new Texture("4b.png"):new Texture("3d.png");
         worldset = main.worldset;
+        hero.weapon = "no";
         MapLayers layers = tiledMap.getLayers();
         TiledMapTileLayer layer = new TiledMapTileLayer(WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE);
         perlinNoise = new PerlinNoise(new Random().nextInt());
@@ -168,7 +172,7 @@ public class GameSCR implements Screen {
     @Override
     public void render(float delta) {
         spawnEnemy();
-       // spawnWeapon();
+        spawnWeapon();
         viewport.getCamera().position.set(cameraMovement.x + 8, cameraMovement.y + 8, 0);
         viewport.getCamera().update();
 
@@ -204,6 +208,9 @@ public class GameSCR implements Screen {
         if (cameraMovement.health > 0) {
             hero.move();
             batch.draw(hero.texture, hero.hitBox.x, hero.hitBox.y, 16, 16);
+            if (Objects.equals(hero.weapon, "weapon")){
+                batch.draw(hero.weaponTexture,hero.x+10,hero.y+10,16,16);
+            }
         }
         if(cameraMovement.health < cameraMovement.maxHealth-10 && cameraMovement.health > 0 )
             spawnHeart();
@@ -227,24 +234,35 @@ public class GameSCR implements Screen {
                 for (int e = 0; e < enemies.size(); e++) {
                     if (cameraMovement.health > 0) {
                         if( viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x+4, enemies.get(e).y+4, 0, 8, 8, 0)) {
-                            batch.draw(enemies.get(e).texture, enemies.get(e).hitBox.x, enemies.get(e).hitBox.y, 16, 16);
+                            batch.draw(enemyTexture, enemies.get(e).hitBox.x, enemies.get(e).hitBox.y, 16, 16);
                         }
                         if (hero.isHit(enemies.get(e).hitBox)) {
-                            enemies.get(e).getDamage(cameraMovement);
-                            cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
+                            if(hero.weapon.equals("no")) {
+                                enemies.get(e).getDamage(cameraMovement);
+                                cameraMovement.healthText.text = Integer.toString(cameraMovement.health);
+                            } else {
+                                enemies.remove(e);
+                                hero.weapon = "no";
+                                break;
+                            }
                         }
+
                         enemies.get(e).move(hero);
                     } else {
                         enemies.get(e).unmove(hero);
                     }
                         for (int w = 0; w < weapons.size(); w++) {
-                      //  if (viewport.getCamera().frustum.boundsInFrustum(weapons.get(w).x, weapons.get(w).y, 0,8,8,0)) {
-                           // batch.draw(weaponTexture,weapons.get(w).x,weapons.get(w).y,16,16);
+                       if (viewport.getCamera().frustum.boundsInFrustum(weapons.get(w).x, weapons.get(w).y, 0,8,8,0)) {
+                            batch.draw(hero.weaponTexture,weapons.get(w).x,weapons.get(w).y,16,16);
+                            if (hero.isHit(weapons.get(w).hitbox) && !hero.weapon.equals("weapon")) {
+                                weapons.remove(w);
+                                hero.weapon = "weapon";
+                            }
 //                                    if (weapons.get(w).isHitEnemies(enemies.get(e)) && viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x, enemies.get(e).y, 0, 8, 8, 0)) {
 //                                        enemies.remove(e);
 //                                    }
 
-                        //        }
+                               }
                             }
                 }
 
@@ -335,8 +353,8 @@ public class GameSCR implements Screen {
     private void spawnWeapon() {
         if (enemies.size() > 5 && weapons.size() < 10){
             if (TimeUtils.millis() >= timeSinceWeapon + intervalWeapon) {
-                float wx = hero.x + MathUtils.random(-500f, 500f);
-                float wy = hero.y + MathUtils.random(-500f, 500f);
+                float wx = hero.x + MathUtils.random(-50f, 50f);
+                float wy = hero.y + MathUtils.random(-50f, 50f);
                 weapons.add(new Weapon(wx, wy));
                 timeSinceWeapon = TimeUtils.millis();
             }

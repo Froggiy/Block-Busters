@@ -27,7 +27,6 @@ public class MenuSCR implements Screen {
 
     public MenuSCR(Main main){
         this.main = main;
-        this.worldset = main.worldset;
         this.touch = main.touch;
         this.viewport = main.viewport;
         this.batch = main.batch;
@@ -45,6 +44,9 @@ public class MenuSCR implements Screen {
     @Override
     public void show() {
         page = "main";
+        plains.text = "Plains";
+        underground.text = "Underground";
+        worldset = 0;
     }
 
     @Override

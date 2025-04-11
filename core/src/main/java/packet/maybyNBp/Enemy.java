@@ -11,7 +11,6 @@ public class Enemy implements Pool.Poolable {
     float x,y,vx,vy, typeSpeed;
     float size;
 
-    Texture texture;
     public Rectangle hitBox;
 
     public Enemy(float x, float y) {
@@ -22,7 +21,6 @@ public class Enemy implements Pool.Poolable {
         typeSpeed = 1;
         size = 16;
         hitBox = new Rectangle(x,y,size,size);
-        texture = new Texture("4b.png");
         timeSinceDamage = TimeUtils.millis();
     }
     void getDamage(CameraMovement cameraMovement){
