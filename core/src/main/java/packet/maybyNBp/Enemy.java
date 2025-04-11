@@ -8,7 +8,8 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class Enemy implements Pool.Poolable {
     long timeSinceDamage, intervalDamage = 800;
-    float x,y,vx,vy;
+    float x,y,vx,vy, typeSpeed;
+    float size;
 
     Texture texture;
     public Rectangle hitBox;
@@ -18,7 +19,9 @@ public class Enemy implements Pool.Poolable {
         this.y = y;
         vx =0;
         vy=0;
-        hitBox = new Rectangle(x,y,16,16);
+        typeSpeed = 1;
+        size = 16;
+        hitBox = new Rectangle(x,y,size,size);
         texture = new Texture("4b.png");
         timeSinceDamage = TimeUtils.millis();
     }
@@ -39,16 +42,16 @@ public class Enemy implements Pool.Poolable {
     public void move(Hero h){
         vx = h.x>x?MathUtils.random(0.1f,0.7f):-MathUtils.random(0.1f,0.7f);
         vy = h.y>y?MathUtils.random(0.1f,0.7f):-MathUtils.random(0.1f,0.7f);
-        x+=vx+MathUtils.random(-0.4f,0.4f);
-        y+=vy-MathUtils.random(-0.4f,0.4f);
+        x+=vx+MathUtils.random(-0.4f,0.4f)*typeSpeed;
+        y+=vy-MathUtils.random(-0.4f,0.4f)*typeSpeed;
         hitBox.x=x;
         hitBox.y=y;
     }
     public void unmove(Hero h){
         vx = h.x>x?MathUtils.random(0.1f,0.7f):-MathUtils.random(0.1f,0.7f);
         vy = h.y>y?MathUtils.random(0.1f,0.7f):-MathUtils.random(0.1f,0.7f);
-        x-=vx+MathUtils.random(-0.4f,0.4f);
-        y-=vy-MathUtils.random(-0.4f,0.4f);
+        x-=vx+MathUtils.random(-0.4f,0.4f)*typeSpeed;
+        y-=vy-MathUtils.random(-0.4f,0.4f)*typeSpeed;
         hitBox.x=x;
         hitBox.y=y;
     }
@@ -65,6 +68,6 @@ public class Enemy implements Pool.Poolable {
     public void init(float x, float y) {
         this.x = x;
         this.y = y;
-        hitBox.set(x, y, 16, 16);
+        hitBox.set(x, y, size, size);
     }
 }

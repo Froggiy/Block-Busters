@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class CameraMovement extends Enemy{
-    int health = 100;
+    int health, maxHealth = 100;
     Rectangle healthLine;
     Button gameOverBtn;
     Button healthText;
@@ -16,7 +16,7 @@ public class CameraMovement extends Enemy{
     long timeSinceStart, gametime;
     public CameraMovement(float x, float y, BitmapFont font) {
         super(x,y);
-
+        health = maxHealth;
         healthLine = new Rectangle(x,y,15,health);
         gameOverBtn = new Button(x,y,font,"Game Over!");
         endTime = new Button(x,y,font,timer(false));
@@ -32,10 +32,15 @@ public class CameraMovement extends Enemy{
         return Integer.toString(minutes) + ":" + Integer.toString(seconds);
     }
     public float srcX(){
-        return x+6;
+        return x+8;
     }
     public float srcY(){
-        return y+6;
+        return y+8;
+    }
+
+    public void setHealth(int health) {
+        if(health + this.health > maxHealth) health = maxHealth;
+        else this.health = health;
     }
 
     @Override

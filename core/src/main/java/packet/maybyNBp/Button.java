@@ -13,17 +13,19 @@ public class Button {
     String text;
 
     public Button(float x, float y, BitmapFont font, String text) {
-        super();
         this.x = x;
         this.y = y;
         this.font = font;
         this.text = text;
-        GlyphLayout glyphLayout = new GlyphLayout(font,text);
-        width = glyphLayout.width;
-        height = glyphLayout.height;
-        rectangle = new Rectangle(x,y,width,height);
+        // Estimate width and height based on font
+        GlyphLayout layout = new GlyphLayout(font, text);
+        this.width = layout.width;
+        this.height = layout.height;
     }
-    public boolean hit(Vector3 t){
-        return x<t.x && t.x<x+width && y>t.y && t.y>y-height;
+
+    public boolean hit(Vector3 t) {
+        return t.x >= x && t.x <= x + width &&
+            t.y >= y - height && t.y <= y;
     }
+
 }

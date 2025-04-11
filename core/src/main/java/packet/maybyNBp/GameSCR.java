@@ -1,9 +1,13 @@
 package packet.maybyNBp;
 
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.loaders.MusicLoader;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +27,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -60,21 +65,19 @@ public class GameSCR implements Screen {
     private static final int TILE_SIZE = 16;  // Size of each tile in pixels
     private static final int WIDTH = 200;
     private static final int HEIGHT = 150;
-    private TextureRegion grassTexture,grassTexture1, waterTexture, stoneTexture,bushTexture,snowTexture;
+    private TextureRegion grassTexture1,grassTexture2, waterTexture, stoneTexture,bushTexture;
+    private TextureRegion lavaTexture,redstoneTexture1, redstoneTexture2, sandTexture;
+
     private TiledMap tiledMap;
     private PerlinNoise perlinNoise;
     private BitmapFont uiFont;
     OrthographicCamera uiCamera;
-    long finalTime = 0;
     Texture heartTexture;
-    Texture weaponTexture;
+    Music music;
+    int worldset;
 
     public GameSCR(Main m) {
         main = m;
-        hero= new Hero(500,500);
-        timeSinceSpawn =TimeUtils.millis();
-        timeSinceTake = TimeUtils.millis();
-        timeSinceWeapon = TimeUtils.millis();
         this.tittleFont = m.tittleFont;
         this.uiFont = m.uiFont;
         touch2 = new Vector3();
@@ -84,39 +87,21 @@ public class GameSCR implements Screen {
         gameOverBtn = new Button(cameraMovement.x+100,cameraMovement.y+50,tittleFont,"GAME OVER!");
         map = new TmxMapLoader().load("levels/level.tmx");
         tiledMap = new TiledMap();
-        MapLayers layers = tiledMap.getLayers();
         heartTexture = new Texture("heart-Photoroom.png");
-        grassTexture = new TextureRegion(new Texture("5b.png"));
-        grassTexture1 = new TextureRegion(new Texture("5h.png"));
+        grassTexture1 = new TextureRegion(new Texture("5b.png"));
+        grassTexture2 = new TextureRegion(new Texture("5h.png"));
         waterTexture = new TextureRegion(new Texture("6b.png"));
         stoneTexture = new TextureRegion(new Texture("1c.png"));
         bushTexture = new TextureRegion(new Texture("4e.png"));
-        TiledMapTileLayer layer = new TiledMapTileLayer(WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE);
-        perlinNoise = new PerlinNoise(new Random().nextInt());
+        lavaTexture = new TextureRegion(new Texture("2f.png"));
+        lavaTexture = new TextureRegion(new Texture("2d.png"));
+        sandTexture = new TextureRegion(new Texture("3h.png"));
+        redstoneTexture1 = new TextureRegion(new Texture("3b.png"));
+        redstoneTexture2 = new TextureRegion(new Texture("3g.png"));
+        bushTexture = new TextureRegion(new Texture("4e.png"));
         joystick = new Joystick(batch,5,5,250);
-
-        for (int y = 0; y < HEIGHT; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                double noiseValue = perlinNoise.noise(x * 0.1, y * 0.1); // Random value between -1 and 1
-                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                // Assign tile based on noise value
-                if (noiseValue < -0.5) {
-                    cell.setTile(new StaticTiledMapTile(stoneTexture));
-                } else if (noiseValue < 0.2) {
-                    cell.setTile(new StaticTiledMapTile(grassTexture));
-                } else if (noiseValue < 0.5) {
-                    cell.setTile(new StaticTiledMapTile(grassTexture1));
-                } else if (noiseValue < 0.8) {
-                    cell.setTile(new StaticTiledMapTile(bushTexture));
-                }
-                else {
-                    cell.setTile(new StaticTiledMapTile(stoneTexture));
-                }
-                layer.setCell(x, y, cell);
-            }
-        }
-        layers.add(layer);
-
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/foreshadow.wav"));
+        music.setLooping(true);
         batch = m.batch;
         viewport = m.viewport;
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
@@ -125,7 +110,59 @@ public class GameSCR implements Screen {
 
     @Override
     public void show() {
+        gameStart();
         Gdx.input.setInputProcessor(new Input());
+    }
+    public void gameStart(){
+        hero= new Hero(500,500);
+        timeSinceSpawn =TimeUtils.millis();
+        timeSinceTake = TimeUtils.millis();
+        timeSinceWeapon = TimeUtils.millis();
+        cameraMovement.timeSinceStart =TimeUtils.millis();
+        cameraMovement.health = cameraMovement.maxHealth;
+        music.play();
+        worldset = main.worldset;
+        MapLayers layers = tiledMap.getLayers();
+        TiledMapTileLayer layer = new TiledMapTileLayer(WIDTH, HEIGHT, TILE_SIZE, TILE_SIZE);
+        perlinNoise = new PerlinNoise(new Random().nextInt());
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                double noiseValue = perlinNoise.noise(x * 0.1, y * 0.1);
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                // Assign tile based on noise value
+                switch (worldset) {
+                    case 1: {
+                        if (noiseValue < -0.5) {
+                            cell.setTile(new StaticTiledMapTile(stoneTexture));
+                        } else if (noiseValue < 0.2) {
+                            cell.setTile(new StaticTiledMapTile(grassTexture1));
+                        } else if (noiseValue < 0.5) {
+                            cell.setTile(new StaticTiledMapTile(grassTexture2));
+                        } else if (noiseValue < 0.8) {
+                            cell.setTile(new StaticTiledMapTile(bushTexture));
+                        } else {
+                            cell.setTile(new StaticTiledMapTile(stoneTexture));
+                        }
+                        break;
+                    }
+                    case 2: {
+                        if (noiseValue < -0.5) {
+                            cell.setTile(new StaticTiledMapTile(redstoneTexture1));
+                        } else if (noiseValue < 0.2) {
+                            cell.setTile(new StaticTiledMapTile(redstoneTexture2));
+                        } else if (noiseValue < 0.5) {
+                            cell.setTile(new StaticTiledMapTile(lavaTexture));
+                        } else {
+                            cell.setTile(new StaticTiledMapTile(sandTexture));
+                        }
+                        break;
+                    }
+                }
+                layer.setCell(x, y, cell);
+            }
+        }
+        layers.add(layer);
+
     }
 
     @Override
@@ -150,7 +187,10 @@ public class GameSCR implements Screen {
 
         cameraMovement.approach(hero);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        ScreenUtils.clear(0, 0.5f, 0.3f, 0);
+        switch (worldset) {
+            case 1:  ScreenUtils.clear(0, 0.5f, 0.3f, 0); break;
+            case 2:  ScreenUtils.clear(0.5f, 0.3f, 0, 0); break;
+        }
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         renderer.setView((OrthographicCamera) viewport.getCamera());
@@ -165,7 +205,7 @@ public class GameSCR implements Screen {
             hero.move();
             batch.draw(hero.texture, hero.hitBox.x, hero.hitBox.y, 16, 16);
         }
-        if(cameraMovement.health < 80 && cameraMovement.health > 0 )
+        if(cameraMovement.health < cameraMovement.maxHealth-10 && cameraMovement.health > 0 )
             spawnHeart();
         for (int h = 0; h < hearts.size(); h++){
                 if (viewport.getCamera().frustum.boundsInFrustum(hearts.get(h).x,hearts.get(h).y,0,8,8,0)) {
@@ -186,7 +226,7 @@ public class GameSCR implements Screen {
 
                 for (int e = 0; e < enemies.size(); e++) {
                     if (cameraMovement.health > 0) {
-                        if( viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x, enemies.get(e).y, 0, 8, 8, 0)) {
+                        if( viewport.getCamera().frustum.boundsInFrustum(enemies.get(e).x+4, enemies.get(e).y+4, 0, 8, 8, 0)) {
                             batch.draw(enemies.get(e).texture, enemies.get(e).hitBox.x, enemies.get(e).hitBox.y, 16, 16);
                         }
                         if (hero.isHit(enemies.get(e).hitBox)) {
@@ -227,11 +267,12 @@ public class GameSCR implements Screen {
 
             //cameraMovement.xBtn.font.draw(batch, cameraMovement.xBtn.text, Gdx.graphics.getWidth()-100, Gdx.graphics.getHeight()-40);
             batch.draw(new Texture("2b.png"), screenHealthX, screenHealthY-100, healthBarWidth*5, healthBarHeight*5);
-            cameraMovement.healthText.font.draw(batch,cameraMovement.healthText.text, screenHealthX + 10, screenHealthY + 15);
+            cameraMovement.healthText.font.draw(batch,cameraMovement.healthText.text+"/"+cameraMovement.maxHealth, screenHealthX + 10, screenHealthY + 15);
             cameraMovement.timerBtn.font.draw(batch, cameraMovement.timer(false), 50, Gdx.graphics.getHeight() - 200);
             batch.draw(joystick.backgroundTexture, joystick.Srcx()-100, joystick.Srcy()-100, joystick.radius, joystick.radius);
             joystick.update(delta);
         } else {
+            music.stop();
             //GameOver();
         }
 
@@ -263,8 +304,8 @@ public class GameSCR implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        heartTexture.dispose();
-        grassTexture.getTexture().dispose();
+        grassTexture1.getTexture().dispose();
+        grassTexture2.getTexture().dispose();
         bushTexture.getTexture().dispose();
         waterTexture.getTexture().dispose();
         stoneTexture.getTexture().dispose();

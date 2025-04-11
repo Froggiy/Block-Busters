@@ -26,14 +26,15 @@ public class Main extends Game {
     MenuSCR menu;
     BitmapFont tittleFont;
     BitmapFont uiFont;
+    int worldset;
     @Override
     public void create() {
 
         batch = new SpriteBatch();
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(213, 108, camera);
-        tittleFont = new BitmapFont(Gdx.files.internal("fonts/20font.fnt"), false);
-        uiFont = new BitmapFont(Gdx.files.internal("fonts/16font.fnt"), false);
+        tittleFont = new BitmapFont(Gdx.files.internal("fonts/20font.fnt"));
+        uiFont = new BitmapFont(Gdx.files.internal("fonts/16font.fnt"));
         uiFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         touch = new Vector3();
         game = new GameSCR(this);
