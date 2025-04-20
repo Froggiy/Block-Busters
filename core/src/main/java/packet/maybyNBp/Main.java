@@ -3,18 +3,11 @@ package packet.maybyNBp;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.Objects;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
@@ -26,6 +19,9 @@ public class Main extends Game {
     MenuSCR menu;
     BitmapFont tittleFont;
     BitmapFont uiFont;
+    BitmapFont lockedFont;
+    BitmapFont unchosenFont;
+    BitmapFont descriptionFont;
     int worldset;
     @Override
     public void create() {
@@ -35,7 +31,9 @@ public class Main extends Game {
         viewport = new FitViewport(213, 108, camera);
         tittleFont = new BitmapFont(Gdx.files.internal("fonts/20font.fnt"));
         uiFont = new BitmapFont(Gdx.files.internal("fonts/16font.fnt"));
-        uiFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        lockedFont = new BitmapFont(Gdx.files.internal("fonts/locked.fnt"));
+        unchosenFont = new BitmapFont(Gdx.files.internal("fonts/unchosen.fnt"));
+        descriptionFont = new BitmapFont(Gdx.files.internal("fonts/description.fnt"));
         touch = new Vector3();
         game = new GameSCR(this);
         menu = new MenuSCR(this);

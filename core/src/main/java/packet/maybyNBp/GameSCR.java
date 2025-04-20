@@ -114,7 +114,7 @@ public class GameSCR implements Screen {
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
         touch = new Vector3();
         int killedEnemies;
-        closestEnemy = new Enemy(0, 0);
+        closestEnemy = new Enemy(0, 0,1);
 
     }
 
@@ -359,6 +359,7 @@ public class GameSCR implements Screen {
             //cameraMovement.xBtn.font.draw(batch, cameraMovement.xBtn.text, Gdx.graphics.getWidth()-100, Gdx.graphics.getHeight()-40);
             batch.draw(new Texture("2b.png"), screenHealthX, screenHealthY - 100, healthBarWidth * 5, healthBarHeight * 5);
             cameraMovement.healthText.font.draw(batch, cameraMovement.healthText.text + "/" + cameraMovement.maxHealth, screenHealthX + 10, screenHealthY + 15);
+            cameraMovement.waveBtn.font.draw(batch,cameraMovement.waveBtn.text,screenHealthX+1150,screenHealthY+25);
             cameraMovement.timerBtn.font.draw(batch, cameraMovement.timer(false), 50, Gdx.graphics.getHeight() - 200);
             batch.draw(joystick.backgroundTexture, joystick.Srcx() - 100, joystick.Srcy() - 100, joystick.radius, joystick.radius);
             joystick.update(delta);
@@ -405,14 +406,14 @@ public class GameSCR implements Screen {
     }
 
     void spawnEnemy() {
-        if (enemies.size() < 30) {
-            if (TimeUtils.millis() >= timeSinceSpawn + intervalSpawn) {
+            int type = MathUtils.random(1, 100);
+            if (TimeUtils.millis() >= timeSinceSpawn + intervalSpawn && type < cameraMovement.wave*300) {
                 float ex = hero.x + MathUtils.random(-1000f, 1000f);
                 float ey = hero.y + MathUtils.random(-1000f, 1000f);
-                enemies.add(new Enemy(ex, ey));
+                enemies.add(new Enemy(ex, ey,type));
+                cameraMovement.wave -= type;
                 timeSinceSpawn = TimeUtils.millis();
             }
-        }
     }
 
     void spawnHeart() {
@@ -463,15 +464,18 @@ public class GameSCR implements Screen {
     void saveData(){
         Preferences preferences = Gdx.app.getPreferences("data");
         try {
-            if(killedEnemies > preferences.getInteger("killed enemies")){
-             preferences.putInteger("killed enemies", killedEnemies);
+            if(cameraMovement.wave > preferences.getInteger("Max waves")){
+                preferences.putInteger("Max waves", cameraMovement.wave);
             }
-            if(cameraMovement.timer(true).equals(preferences.getString("Time"))){
-                preferences.putString("Time", cameraMovement.timer(true));
+             preferences.putInteger("killed enemies", preferences.getInteger("killed enemies")+killedEnemies);
+
+            if(cameraMovement.timer(true).hashCode()>preferences.getString("Best time").hashCode()){
+                preferences.putString("Best time", cameraMovement.timer(true));
             }
         }catch (Exception e){
+            preferences.putInteger("waves", cameraMovement.wave);
             preferences.putInteger("killed enemies", killedEnemies);
-            preferences.putString("Time", cameraMovement.timer(true));
+            preferences.putString("Best time", cameraMovement.timer(true));
         }
         preferences.flush();
     }

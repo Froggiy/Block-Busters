@@ -17,25 +17,32 @@ public class Enemy implements Pool.Poolable {
 
 
     public Rectangle hitBox;
-
-    public Enemy(float x, float y) {
+    int type;
+    public Enemy (float x,float y){
         this.x = x;
         this.y = y;
         vx =0;
         vy=0;
-        int type = MathUtils.random(0,100);
+    }
+
+    public Enemy(float x, float y, int type) {
+        this.x = x;
+        this.y = y;
+        vx =0;
+        vy=0;
+        this.type = type;
         if(type < 40){
-                typeSpeed = 1.2f;
+                typeSpeed = 1.5f;
                 size = 10;
                 health = 1;
             }
         else if(type < 80){
-                typeSpeed = 1;
+                typeSpeed = 1.1f;
                 size = 24;
                 health = 2;
             }
         else{
-                typeSpeed = 0.6f;
+                typeSpeed = 0.8f;
                 size = 32;
                 health = 5;
             }
@@ -45,7 +52,7 @@ public class Enemy implements Pool.Poolable {
     }
     void getDamage(CameraMovement cameraMovement){
         if (TimeUtils.millis() >= timeSinceDamage + intervalDamage){
-            cameraMovement.health-=3;
+            cameraMovement.health-=type/10;
             timeSinceDamage = TimeUtils.millis();
         }
     }
@@ -74,8 +81,8 @@ public class Enemy implements Pool.Poolable {
         hitBox.y=y;
     }
     public void approach(Hero h){
-        vx = h.x-x;
-        vy = h.y-y;
+        vx = (h.x+8)-x;
+        vy = (h.y+8)-y;
     }
 
     @Override
