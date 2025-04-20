@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -13,8 +14,12 @@ public class Hero {
     Texture texture;
     float x,y,vx,vy;
     public Rectangle hitBox;
+    public Circle range;
     public String weapon;
     public Texture weaponTexture;
+    public Texture ammoTexture;
+    public Texture staffTexture;
+    int weaponUses;
 
 
     public Hero(float x, float y) {
@@ -22,10 +27,14 @@ public class Hero {
         this.y = y;
         vx = 0;
         vy = 0;
+        weaponUses = 0;
         texture = new Texture("1a.png");
         hitBox = new Rectangle(x,y,16,16);
+        range = new Circle(x-8,y-8,120);
         weapon = "no";
         weaponTexture = new Texture("sword.png");
+        ammoTexture = new Texture("ammo.png");
+        staffTexture = new Texture("staff.png");
     }
 
     public boolean isTileSolid(TiledMap map) {
@@ -52,6 +61,8 @@ public class Hero {
         y+=vy;
         hitBox.x=x;
         hitBox.y=y;
+        range.x=x-52;
+        range.y=y-52;
     }
 
 
@@ -71,6 +82,12 @@ public class Hero {
         return false;
     }
 
+    public boolean isInRange(Rectangle rect){
+        if (range.contains(rect.x, rect.y)){
+            return  true;
+        }
+        return false;
+    }
 
 
 }

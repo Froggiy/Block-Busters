@@ -23,7 +23,6 @@ public class MenuSCR implements Screen {
     Button underground;
     Button exit;
     BitmapFont tittleFont;
-    int worldset;
     String page;
     Preferences preferences = Gdx.app.getPreferences("data");
     String time = "00:00";
@@ -35,24 +34,22 @@ public class MenuSCR implements Screen {
         this.viewport = main.viewport;
         this.batch = main.batch;
         this.tittleFont = main.tittleFont;
+        main.worldset = 0;
         loadData();
         page = "main";
-        tittle = new Button(110,105,tittleFont,"STRELALKA \nKRYTAYA");
+        tittle = new Button(viewport.getWorldWidth()-100, 105,tittleFont,"STRELALKA \nKRYTAYA");
         play = new Button(20,50,tittleFont,"Play");
         exit = new Button(20,25, tittleFont, "Exit");
-
         plains = new Button(8,50,tittleFont,"Plains");
         underground = new Button(8,25,tittleFont,"Underground(15 to get)");
-        start = new Button(110,105,tittleFont,"Start");
+        start = new Button(viewport.getWorldWidth()-65, viewport.getWorldHeight()-10, tittleFont,"Start");
     }
 
     @Override
     public void show() {
-        page = "main";
+        loadData();
         plains.text = "Plains";
         underground.text = "Underground";
-        worldset = 0;
-        loadData();
     }
 
     @Override
@@ -74,18 +71,19 @@ public class MenuSCR implements Screen {
                 }
                 case "worldChose": {
                     if (plains.hit(touch)) {
-                        worldset = 1;
+                        main.worldset = 1;
                         underground.text = "Underground";
                         plains.text = "Plains(selected)";
                     }
                     if (underground.hit(touch) && preferences.getInteger("killed enemies") > 15) {
-                        worldset = 2;
+                        main.worldset = 2;
                         plains.text = "Plains";
                         underground.text = "Underground(selected)";
                     }
-                    if (start.hit(touch) && worldset != 0) {
-                        main.worldset = worldset;
+                    if (start.hit(touch) && main.worldset != 0) {
                         main.setScreen(main.game);
+                        page = "main";
+                        main.worldset=0;
                     }
                 }
             }
