@@ -48,7 +48,7 @@ public class MenuSCR implements Screen {
         main.worldset = 0;
         loadData();
         page = "main";
-        tittle = new Button(viewport.getWorldWidth()-100, 105,tittleFont,"STRELALKA \nKRYTAYA");
+        tittle = new Button(viewport.getWorldWidth()-100, 105,tittleFont,"Block \nBusters");
         play = new Button(10,75,tittleFont,"Play");
         statistics = new Button(10,50,tittleFont,"Statistics");
         maxWaves = new Button(10,75, tittleFont, "Max waves: " + wave);
@@ -92,7 +92,7 @@ public class MenuSCR implements Screen {
                     if (plains.hit(touch)) {
                         main.worldset = 1;
                         start.text = "Start";
-                        start.x = viewport.getWorldHeight()+65;
+                        start.x = viewport.getWorldWidth()-65;
                     }
                     if (underground.hit(touch) ) {
                         if (wave>=10) main.worldset = 2;
@@ -130,7 +130,7 @@ public class MenuSCR implements Screen {
                 break;
             }
             case 2: {
-                plains.font = lockedFont;
+                plains.font = unchosenFont;
                 underground.font = tittleFont;
                 break;
             }

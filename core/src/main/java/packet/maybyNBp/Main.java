@@ -6,7 +6,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Box2D;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -23,9 +27,9 @@ public class Main extends Game {
     BitmapFont unchosenFont;
     BitmapFont descriptionFont;
     int worldset;
+
     @Override
     public void create() {
-
         batch = new SpriteBatch();
         OrthographicCamera camera = new OrthographicCamera();
         viewport = new FitViewport(213, 108, camera);

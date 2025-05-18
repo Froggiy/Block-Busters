@@ -6,16 +6,13 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 
-import java.util.Random;
-
 public class Enemy implements Pool.Poolable {
     long timeSinceDamage, intervalDamage = 800;
+    long timeSinceShoot, intervalShoot = 1500;
     float x,y,vx,vy, typeSpeed;
     float size;
     int health;
-    Texture healthLine;
-
-
+    Texture texture;
     public Rectangle hitBox;
     int type;
     public Enemy (float x,float y){
@@ -35,26 +32,36 @@ public class Enemy implements Pool.Poolable {
                 typeSpeed = 1.5f;
                 size = 10;
                 health = 1;
+                texture = new Texture("8a.png");
             }
         else if(type < 80){
                 typeSpeed = 1.1f;
                 size = 24;
                 health = 2;
+                texture = new Texture("8b.png");
             }
         else{
                 typeSpeed = 0.8f;
                 size = 32;
                 health = 5;
+                texture = new Texture("8c.png");
             }
-        healthLine = new Texture("2h.png");
         hitBox = new Rectangle(x,y,size,size);
         timeSinceDamage = TimeUtils.millis();
+        timeSinceShoot = TimeUtils.millis();
     }
-    void getDamage(CameraMovement cameraMovement){
+    void getDamage(UI UI){
         if (TimeUtils.millis() >= timeSinceDamage + intervalDamage){
-            cameraMovement.health-=type/10;
+            UI.health-=type/10;
             timeSinceDamage = TimeUtils.millis();
         }
+    }
+    public boolean doShoot(){
+        if(TimeUtils.millis() >= timeSinceShoot +intervalShoot){
+           timeSinceShoot = TimeUtils.millis();
+           return true;
+        }
+        return false;
     }
 
     public void moveX(){
@@ -88,12 +95,6 @@ public class Enemy implements Pool.Poolable {
     @Override
     public void reset() {
 
-    }
-
-    public void init(float x, float y) {
-        this.x = x;
-        this.y = y;
-        hitBox.set(x, y, size, size);
     }
     public boolean isHit(Rectangle rect){
         if (hitBox.overlaps(rect)) {

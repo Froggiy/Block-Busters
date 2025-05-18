@@ -56,13 +56,15 @@ public class Hero {
         }
         return true; // Tile is walkable
     }
-    public void move(){
-        x+=vx;
+    public void moveY(){
         y+=vy;
-        hitBox.x=x;
         hitBox.y=y;
-        range.x=x-52;
         range.y=y-52;
+    }
+    public void moveX(){
+        x+=vx;
+        hitBox.x=x;
+        range.x=x-52;
     }
 
 

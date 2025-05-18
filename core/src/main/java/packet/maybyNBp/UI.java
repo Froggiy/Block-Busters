@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public class CameraMovement extends Enemy{
+public class UI extends Enemy{
     int health, maxHealth = 100;
     Rectangle healthLine;
     Button gameOverBtn;
@@ -16,7 +16,7 @@ public class CameraMovement extends Enemy{
     int wave;
     Button timerBtn;
     long timeSinceStart, gametime;
-    public CameraMovement(float x, float y, BitmapFont font) {
+    public UI(float x, float y, BitmapFont font) {
         super(x,y);
         health = maxHealth;
         healthLine = new Rectangle(x,y,15,health);
