@@ -73,7 +73,6 @@ public class GameSCR implements Screen {
     int worldset;
     int killedEnemies;
     Enemy closestEnemy;
-    Texture healthBarTexture;
 
     public GameSCR(Main m) {
         main = m;
@@ -86,7 +85,6 @@ public class GameSCR implements Screen {
         gameOverBtn = new Button(UI.x + 100, UI.y + 50, tittleFont, "GAME OVER!");
         map = new TmxMapLoader().load("levels/level.tmx");
         tiledMap = new TiledMap();
-        healthBarTexture = new Texture("2b.png");
         heartTexture = new Texture("heart.png");
         goldenHeartTexture = new Texture("goldheart.png");
         grassTexture1 = new TextureRegion(new Texture("5b.png"));
@@ -334,10 +332,7 @@ public class GameSCR implements Screen {
 
         if (UI.health > 0) {
 
-
-            batch.draw(healthBarTexture, UI.healthLine.x, UI.healthLine.y);
-            UI.healthText.font.draw(batch, UI.healthText.text + "/" + UI.maxHealth, UI.healthText.x, UI.healthText.y );
-
+            UI.healthText.font.draw(batch, "xp:"+UI.healthText.text + "/" + UI.maxHealth, UI.healthText.x, UI.healthText.y );
             UI.waveBtn.font.draw(batch, UI.waveBtn.text, UI.waveBtn.x, UI.waveBtn.y);
             UI.timerBtn.font.draw(batch, UI.timer(false), UI.timerBtn.x, UI.timerBtn.y);
             UI.xBtn.font.draw(batch,UI.xBtn.text, UI.xBtn.x, UI.xBtn.y);
@@ -529,7 +524,7 @@ public class GameSCR implements Screen {
                 touch2.set(Gdx.input.getX(), Gdx.input.getY(), 0);
                 uiCamera.unproject(touch2);
                     if (UI.xBtn.x < touch2.x && touch2.y < UI.xBtn.y) {
-                        gameOver();
+                        music.stop();
                         main.setScreen(main.menu);
                     }
             return false;

@@ -54,16 +54,14 @@ public class UI extends Enemy{
     public void approach(Hero h) {
 
         super.approach(h);
-        healthLine.x = 50;
-        healthLine.y = Gdx.graphics.getHeight() - 100;
-        healthText.x = healthLine.x;
-        healthText.y = healthLine.y+50;
+        healthText.x = 50;
+        healthText.y = Gdx.graphics.getHeight() - 25;
         waveBtn.x = healthLine.x + 500;
-        waveBtn.y = healthLine.y + 50;
+        waveBtn.y = Gdx.graphics.getHeight()-25;
         timerBtn.x = 50;
-        timerBtn.y = Gdx.graphics.getHeight() - 100;
+        timerBtn.y = Gdx.graphics.getHeight() - 75;
         xBtn.x = Gdx.graphics.getWidth() -100;
-        xBtn.y = Gdx.graphics.getHeight() - 50;
+        xBtn.y = Gdx.graphics.getHeight()-25;
         gameOverBtn.x = Gdx.graphics.getWidth()/2;
         gameOverBtn.y = Gdx.graphics.getHeight()/2;
     }
