@@ -57,9 +57,9 @@ public class GameSCR implements Screen {
     long timeSinceShoot, intervalShoot = 3000;
     long timeSinceTake, intervalTake = 300;
     long timeSinceWeapon, intervalWeapon = 30500;
-    private static final int TILE_SIZE = 16;  // Size of each tile in pixels
-    private static final int WIDTH = 200;
-    private static final int HEIGHT = 150;
+    private static final int TILE_SIZE = 16;
+    private static final int WIDTH = 150;
+    private static final int HEIGHT = 100;
     private TextureRegion grassTexture1, grassTexture2, waterTexture, stoneTexture, bushTexture;
     private TextureRegion lavaTexture, redstoneTexture1, redstoneTexture2, sandTexture;
 
@@ -73,6 +73,7 @@ public class GameSCR implements Screen {
     int worldset;
     int killedEnemies;
     Enemy closestEnemy;
+    Texture healthBarTexture;
 
     public GameSCR(Main m) {
         main = m;
@@ -85,6 +86,7 @@ public class GameSCR implements Screen {
         gameOverBtn = new Button(UI.x + 100, UI.y + 50, tittleFont, "GAME OVER!");
         map = new TmxMapLoader().load("levels/level.tmx");
         tiledMap = new TiledMap();
+        healthBarTexture = new Texture("2b.png");
         heartTexture = new Texture("heart.png");
         goldenHeartTexture = new Texture("goldheart.png");
         grassTexture1 = new TextureRegion(new Texture("5b.png"));
@@ -92,7 +94,7 @@ public class GameSCR implements Screen {
         waterTexture = new TextureRegion(new Texture("6b.png"));
         stoneTexture = new TextureRegion(new Texture("1c.png"));
         bushTexture = new TextureRegion(new Texture("4e.png"));
-        lavaTexture = new TextureRegion(new Texture("2d.png"));
+        lavaTexture = new TextureRegion(new Texture("2h.png"));
         sandTexture = new TextureRegion(new Texture("3h.png"));
         redstoneTexture1 = new TextureRegion(new Texture("3b.png"));
         redstoneTexture2 = new TextureRegion(new Texture("3g.png"));
@@ -197,8 +199,8 @@ public class GameSCR implements Screen {
         if(hero.y < viewport.getScreenHeight()+50)hero.moveX();
         else hero.y = viewport.getScreenHeight()+49;
 
-            if (hero.x - 90 > 0 && hero.x < viewport.getScreenWidth()) {UI.moveX();}
-            if (hero.y - 35 > 0 && hero.y < viewport.getScreenHeight()) {UI.moveY();}
+        if (hero.x - 90 > 0 && hero.x < viewport.getScreenWidth()) {UI.moveX();}
+        if (hero.y - 35 > 0 && hero.y < viewport.getScreenHeight()) {UI.moveY();}
 
         UI.approach(hero);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -216,6 +218,8 @@ public class GameSCR implements Screen {
         renderer.render();
 
         // ------------------ WORLD RENDERING ------------------
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        viewport.getCamera().update();
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
@@ -282,17 +286,8 @@ public class GameSCR implements Screen {
                         break;
                     }
                 }
-               //for (int s = 0; s < enemyShoots.size(); s++){
-               //    enemyShoots.get(s).pos.lerp(new Vector2(hero.x,hero.y),0.0005f);
-               //    if (viewport.getCamera().frustum.boundsInFrustum(enemyShoots.get(s).pos.x, enemyShoots.get(e).pos.y, 0, 8, 8, 0)) {
-               //        batch.draw(sandTexture, enemyShoots.get(s).pos.x, enemyShoots.get(e).pos.y, 16, 16);
-               //        if (hero.isHit(enemyShoots.get(s).hitbox)) {
-               //            UI.health--;
-               //            enemyShoots.remove(s);
-               //            break;
-               //        }
-               //    }
-               //}
+
+
                 enemies.get(e).move(hero);
             } else {
                 enemies.get(e).unmove(hero);
@@ -339,29 +334,22 @@ public class GameSCR implements Screen {
 
         if (UI.health > 0) {
 
-            float screenHealthX = 20; // Move slightly right
-            float screenHealthY = Gdx.graphics.getHeight() - 40; // Move lower
 
-            float healthBarHeight = 20;
-            float healthBarWidth = UI.health * 2; // Scale width
+            batch.draw(healthBarTexture, UI.healthLine.x, UI.healthLine.y);
+            UI.healthText.font.draw(batch, UI.healthText.text + "/" + UI.maxHealth, UI.healthText.x, UI.healthText.y );
 
-            UI.xBtn.font.getData().setScale(2f);
-            UI.healthText.font.getData().setScale(2f);
-            UI.timerBtn.font.getData().setScale(2f);
+            UI.waveBtn.font.draw(batch, UI.waveBtn.text, UI.waveBtn.x, UI.waveBtn.y);
+            UI.timerBtn.font.draw(batch, UI.timer(false), UI.timerBtn.x, UI.timerBtn.y);
+            UI.xBtn.font.draw(batch,UI.xBtn.text, UI.xBtn.x, UI.xBtn.y);
 
-            //cameraMovement.xBtn.font.draw(batch, cameraMovement.xBtn.text, Gdx.graphics.getWidth()-100, Gdx.graphics.getHeight()-40);
-            batch.draw(new Texture("2b.png"), screenHealthX, screenHealthY - 100, healthBarWidth * 5, healthBarHeight * 5);
-            UI.healthText.font.draw(batch, UI.healthText.text + "/" + UI.maxHealth, screenHealthX + 10, screenHealthY + 15);
-            UI.waveBtn.font.draw(batch, UI.waveBtn.text,screenHealthX+1150,screenHealthY+25);
-            UI.timerBtn.font.draw(batch, UI.timer(false), 50, Gdx.graphics.getHeight() - 200);
-            batch.draw(joystick.backgroundTexture, joystick.Srcx() - 100, joystick.Srcy() - 100, joystick.radius, joystick.radius);
+            batch.draw(joystick.backgroundTexture, 10, 10, joystick.radius, joystick.radius);
             joystick.update(delta);
-        } else {
 
-            GameOver();
+        } else {
+            gameOver();
         }
 
-        batch.end(); // End UI rendering
+        batch.end();
         closestEnemy = new Enemy(0, 0);
     }
 
@@ -445,10 +433,10 @@ public class GameSCR implements Screen {
 
 
 
-    void GameOver(){
+    public void gameOver(){
         saveData();
-        UI.gameOverBtn.font.draw(batch, UI.gameOverBtn.text, UI.x, UI.y);
-        UI.endTime.font.draw(batch, UI.timer(true), UI.x, UI.y-200);
+        UI.gameOverBtn.font.draw(batch, UI.gameOverBtn.text, UI.gameOverBtn.x-200, UI.gameOverBtn.y+50);
+        UI.endTime.font.draw(batch, UI.timer(true), UI.gameOverBtn.x-100, UI.gameOverBtn.y);
         music.stop();
         ammo.clear();
         hearts.clear();
@@ -539,14 +527,11 @@ public class GameSCR implements Screen {
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 touch2.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-                uiCamera.unproject(touch);
-                if (UI.health <=0){
-                    main.setScreen(main.menu);
-
-                }
-            if(touch2.x > UI.x +1600 && touch2.y > UI.y+400){
-                main.setScreen(main.menu);
-            }
+                uiCamera.unproject(touch2);
+                    if (UI.xBtn.x < touch2.x && touch2.y < UI.xBtn.y) {
+                        gameOver();
+                        main.setScreen(main.menu);
+                    }
             return false;
         }
 
@@ -563,15 +548,17 @@ public class GameSCR implements Screen {
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-            touch.set(screenX, screenY, 0);
-            viewport.getCamera().unproject(touch);
-            if((touch.x < UI.x -50 && touch.x > UI.x - 75)) {
+            if(UI.health > 0) {
+                touch.set(screenX, screenY, 0);
+                viewport.getCamera().unproject(touch);
+                if ((touch.x < UI.x - 50 && touch.x > UI.x - 75)) {
                     joystick.shiftX = (UI.x - touch.x);
                     hero.vx = -(joystick.shiftX - 63) / 10;
                 }
-            if(touch.y < UI.y-10){
+                if (touch.y < UI.y - 10) {
                     joystick.shiftY = (UI.y - touch.y);
                     hero.vy = -(joystick.shiftY - 25) / 10;
+                }
             }
 
 

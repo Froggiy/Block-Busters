@@ -1,5 +1,6 @@
 package packet.maybyNBp;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -43,12 +44,6 @@ public class UI extends Enemy{
         waveBtn.text = "Wave: " + wave;
         return String.format("%d:%02d", minutes, seconds);
     }
-    public float srcX(){
-        return x+8;
-    }
-    public float srcY(){
-        return y+8;
-    }
 
     public void setHealth(int health) {
         if(health + this.health > maxHealth) health = maxHealth;
@@ -58,19 +53,18 @@ public class UI extends Enemy{
     @Override
     public void approach(Hero h) {
 
-            super.approach(h);
-
-        healthLine.x = x-90;
-        healthLine.y = y+45;
+        super.approach(h);
+        healthLine.x = 50;
+        healthLine.y = Gdx.graphics.getHeight() - 100;
         healthText.x = healthLine.x;
-        healthText.y = healthLine.y;
-        waveBtn.x = healthLine.x + 100;
-        waveBtn.y = healthLine.y;
-        timerBtn.x = x-90;
-        timerBtn.y = y+45;
-        xBtn.x = x+100;
-        xBtn.y = y+60;
-        gameOverBtn.x = x+250;
-        gameOverBtn.y = y+100;
+        healthText.y = healthLine.y+50;
+        waveBtn.x = healthLine.x + 500;
+        waveBtn.y = healthLine.y + 50;
+        timerBtn.x = 50;
+        timerBtn.y = Gdx.graphics.getHeight() - 100;
+        xBtn.x = Gdx.graphics.getWidth() -100;
+        xBtn.y = Gdx.graphics.getHeight() - 50;
+        gameOverBtn.x = Gdx.graphics.getWidth()/2;
+        gameOverBtn.y = Gdx.graphics.getHeight()/2;
     }
 }

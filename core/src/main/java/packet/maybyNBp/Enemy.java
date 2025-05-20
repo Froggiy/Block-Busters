@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public class Enemy implements Pool.Poolable {
+public class Enemy {
     long timeSinceDamage, intervalDamage = 800;
     long timeSinceShoot, intervalShoot = 1500;
     float x,y,vx,vy, typeSpeed;
@@ -92,10 +92,6 @@ public class Enemy implements Pool.Poolable {
         vy = (h.y+8)-y;
     }
 
-    @Override
-    public void reset() {
-
-    }
     public boolean isHit(Rectangle rect){
         if (hitBox.overlaps(rect)) {
             return true;

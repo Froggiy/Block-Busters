@@ -135,7 +135,11 @@ public class MenuSCR implements Screen {
                 break;
             }
         }
+        viewport.getCamera().update();
+        batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
+        viewport.getCamera().update();
+        batch.setProjectionMatrix(viewport.getCamera().combined);
         switch (page) {
             case"main": {
                 tittle.font.draw(batch, tittle.text, tittle.x, tittle.y);
