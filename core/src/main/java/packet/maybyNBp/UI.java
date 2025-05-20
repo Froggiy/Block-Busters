@@ -1,6 +1,7 @@
 package packet.maybyNBp;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -16,12 +17,14 @@ public class UI extends Enemy{
     Button xBtn;
     int wave;
     Button timerBtn;
+    OrthographicCamera camera;
     long timeSinceStart, gametime;
     public UI(float x, float y, BitmapFont font) {
         super(x,y);
         health = maxHealth;
         healthLine = new Rectangle(x,y,15,health);
-
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         gameOverBtn = new Button(x,y,font,"Game Over!");
         waveBtn = new Button(x,y,font,"Wave: 0");
         xBtn = new Button(x,y,font,"X");

@@ -79,9 +79,8 @@ public class GameSCR implements Screen {
         this.tittleFont = m.tittleFont;
         this.uiFont = m.uiFont;
         touch2 = new Vector3();
-        uiCamera = new OrthographicCamera();
-        uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         UI = new UI(50, 50, uiFont);
+        uiCamera = UI.camera;
         gameOverBtn = new Button(UI.x + 100, UI.y + 50, tittleFont, "GAME OVER!");
         map = new TmxMapLoader().load("levels/level.tmx");
         tiledMap = new TiledMap();
