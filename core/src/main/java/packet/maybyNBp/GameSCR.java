@@ -102,7 +102,6 @@ public class GameSCR implements Screen {
         viewport = m.viewport;
         renderer = new OrthogonalTiledMapRenderer(tiledMap);
         touch = new Vector3();
-        int killedEnemies;
         closestEnemy = new Enemy(0, 0,1);
 
     }
@@ -214,7 +213,6 @@ public class GameSCR implements Screen {
         renderer.setView((OrthographicCamera) viewport.getCamera());
         renderer.render();
 
-        // ------------------ WORLD RENDERING ------------------
         batch.setProjectionMatrix(viewport.getCamera().combined);
         viewport.getCamera().update();
         batch.setProjectionMatrix(viewport.getCamera().combined);
@@ -337,8 +335,6 @@ public class GameSCR implements Screen {
             UI.xBtn.font.draw(batch,UI.xBtn.text, UI.xBtn.x, UI.xBtn.y);
 
             batch.draw(joystick.backgroundTexture, 10, 10, joystick.radius, joystick.radius);
-            joystick.update(delta);
-
         } else {
             gameOver();
         }
